@@ -46,6 +46,7 @@ def get_all():
     #                    cobbler profile must be used
     data = []
     LOG.debug("Searching images in %s", CONF.bootstrap_images_dir)
+    #默认列出/var/www/nailgun/bootstraps下所有目录
     for name in os.listdir(CONF.bootstrap_images_dir):
         if not os.path.isdir(os.path.join(CONF.bootstrap_images_dir, name)):
             continue
@@ -68,26 +69,31 @@ def _cobbler_profile():
     return re.search(regex, stdout).group('profile')
 
 
+#解析image_uuid，检查是否为合法的image_uuid
 def parse(image_uuid):
     LOG.debug("Trying to parse [%s] image", image_uuid)
     dir_path = full_path(image_uuid)
     if os.path.islink(dir_path) or not os.path.isdir(dir_path):
+        #不处理连接及非目录
         raise errors.IncorrectImage("There are no such image [{0}]."
                                     .format(image_uuid))
 
     metafile = os.path.join(dir_path, consts.METADATA_FILE)
     if not os.path.exists(metafile):
+        #目录下必须有metadata.yaml文件
         raise errors.IncorrectImage("Image [{0}] doesn't contain metadata "
                                     "file.".format(image_uuid))
 
     with open(metafile) as f:
         try:
+            #必须为合法的yaml格式
             data = yaml.safe_load(f)
         except yaml.YAMLError as e:
             raise errors.IncorrectImage("Couldn't parse metadata file for"
                                         " image [{0}] due to {1}"
                                         .format(image_uuid, e))
     if data.get('uuid') != os.path.basename(dir_path):
+        #yaml中指明的uuid格式需要与dir_path名称相同
         raise errors.IncorrectImage("UUID from metadata file [{0}] doesn't"
                                     " equal directory name [{1}]"
                                     .format(data.get('uuid'), image_uuid))
@@ -109,6 +115,7 @@ def delete(image_uuid):
 
 
 def is_active(image_uuid):
+    #如果"/var/www/nailgun/bootstraps/active_bootstrap"链接的位置即为image_uuid,则说明此镜像被置为活沃
     return full_path(image_uuid) == os.path.realpath(
         CONF.active_bootstrap_symlink)
 
@@ -159,6 +166,7 @@ def make_bootstrap(data):
     bootdata_builder = data_util.BootstrapDataBuilder(data)
     bootdata = bootdata_builder.build()
 
+    #显示配置dict
     LOG.info("Try to build image with data:\n%s", yaml.safe_dump(bootdata))
 
     opts = ['--data_driver', 'bootstrap_build_image']
@@ -166,7 +174,8 @@ def make_bootstrap(data):
         opts.extend(['--image_build_dir', data['image_build_dir']])
 
     OSLO_CONF = cfg.CONF
-    OSLO_CONF(opts, project='fuel-agent')
+    OSLO_CONF(opts, project='fuel-agent') #配置opts中指定的cfg参数
+    #构造mngr
     mngr = manager.Manager(bootdata)
     LOG.info("Build process is in progress. Usually it takes 15-20 minutes."
              " It depends on your internet connection and hardware"

@@ -19,3 +19,8 @@ dist
 .idea
 .DS_Store
 *.egg-info
+
+.project
+.pydevproject
+.settings/
+

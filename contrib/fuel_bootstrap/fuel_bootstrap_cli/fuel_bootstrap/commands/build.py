@@ -23,11 +23,13 @@ class BuildCommand(base.BaseCommand):
 
     def get_parser(self, prog_name):
         parser = super(BuildCommand, self).get_parser(prog_name)
+        #配置ubuntu-release名称
         parser.add_argument(
             '--ubuntu-release',
             type=str,
             help="Choose the Ubuntu release",
         )
+        #配置仓库
         parser.add_argument(
             '--repo',
             dest='repos',
@@ -173,9 +175,11 @@ class BuildCommand(base.BaseCommand):
 
     def take_action(self, parsed_args):
         super(BuildCommand, self).take_action(parsed_args)
+        #构造一个bootstrap
         image_uuid, path = bs_image.make_bootstrap(vars(parsed_args))
         self.app.stdout.write("Bootstrap image {0} has been built: {1}\n"
                               .format(image_uuid, path))
+        #导入bootstrap
         if parsed_args.activate:
             bs_image.import_image(path)
             bs_image.activate(image_uuid)

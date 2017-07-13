@@ -170,6 +170,7 @@ def B2MiB(b, ceil=True):
 
 
 def get_driver(name):
+    #加载driver
     LOG.debug('Trying to get driver: fuel_agent.drivers.%s', name)
     driver = stevedore.driver.DriverManager(
         namespace='fuel_agent.drivers', name=name).driver
@@ -273,6 +274,7 @@ def makedirs_if_not_exists(path, mode=0o755):
     :param path: Directory path
     :param mode: Directory mode (Default: 0o755)
     """
+    #如果目录不存在，则创建目录
     if not os.path.isdir(path):
         os.makedirs(path, mode=mode)
 

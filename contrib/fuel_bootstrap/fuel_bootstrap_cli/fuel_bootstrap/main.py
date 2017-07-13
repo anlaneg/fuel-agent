@@ -37,6 +37,7 @@ class FuelBootstrap(app.App):
         super(FuelBootstrap, self).__init__(
             description='Command line Fuel bootstrap manager',
             version=version.VersionInfo('fuel-bootstrap').version_string(),
+            #这里载入setup.cfg中的记录
             command_manager=CommandManager('fuel_bootstrap',
                                            convert_underscores=True),
             **kwargs
@@ -54,6 +55,6 @@ class FuelBootstrap(app.App):
         if err:
             LOG.debug('got an error: %s', err)
 
-
+#fuel-bootstrap 命令行入口
 def main(argv=sys.argv[1:]):
     return FuelBootstrap().run(argv)

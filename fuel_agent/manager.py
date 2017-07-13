@@ -214,6 +214,7 @@ LOG = logging.getLogger(__name__)
 
 class Manager(object):
     def __init__(self, data):
+        #载入nailgun对应的class: nailgun = fuel_agent.drivers.nailgun:Nailgun
         self.driver = utils.get_driver(CONF.data_driver)(data)
 
     def do_clean_filesystems(self):
@@ -1034,6 +1035,7 @@ class Manager(object):
             packages = driver_os.packages
             metadata['packages'] = packages
 
+            #配置apt-get
             self._set_apt_repos(
                 chroot, driver_os.repos,
                 proxies=driver_os.proxies.proxies,
@@ -1046,12 +1048,15 @@ class Manager(object):
             bu.propagate_host_resolv_conf(chroot)
             if hasattr(bs_scheme, 'certs') and bs_scheme.certs:
                 bu.copy_update_certs(bs_scheme.certs, chroot)
+            #更新并构造系统
             bu.run_apt_get(chroot, packages=packages,
                            attempts=CONF.fetch_packages_attempts)
             LOG.debug('Post-install OS configuration')
+            #同步额外的文件夹
             if hasattr(bs_scheme, 'extra_files') and bs_scheme.extra_files:
                 for extra in bs_scheme.extra_files:
                         bu.rsync_inject(extra, chroot)
+            #证书登录，提前存放证书
             if (hasattr(bs_scheme, 'root_ssh_authorized_file') and
                     bs_scheme.root_ssh_authorized_file):
                 LOG.debug('Put ssh auth file %s',
@@ -1063,6 +1068,7 @@ class Manager(object):
                     bs_scheme.root_ssh_authorized_file,
                     auth_file)
                 os.chmod(auth_file, 0o700)
+            #运行post脚本
             # Allow user to drop and run script inside chroot:
             if (hasattr(bs_scheme, 'post_script_file') and
                     bs_scheme.post_script_file):

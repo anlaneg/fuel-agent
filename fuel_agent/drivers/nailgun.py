@@ -647,6 +647,7 @@ class Nailgun(base.BaseDataDriver):
         return grub
 
     def parse_image_meta(self):
+        #载入metadata_url对应的配置
         LOG.debug('--- Preparing image metadata ---')
         data = self.data
         # FIXME(agordeev): this piece of code for fetching additional image

@@ -104,11 +104,13 @@ def run_apt_get(chroot, packages, eatmydata=False, attempts=10):
     dpkg/apt-get tools. It's dangerous, but could decrease package install
     time in X times.
     """
+    #chroot到指定目上前，并执行apt-get update,apt-get dist-upgrade
     for action in ('update', 'dist-upgrade'):
         cmds = ['chroot', chroot, 'apt-get', '-y', action]
         stdout, stderr = utils.execute(*cmds, attempts=attempts)
         LOG.debug('Running apt-get %s completed.\nstdout: %s\nstderr: %s',
                   action, stdout, stderr)
+    #chroot到指定目录上，并安装packages
     cmds = ['chroot', chroot, 'apt-get', '-y', 'install', ' '.join(packages)]
     if eatmydata:
         cmds.insert(2, 'eatmydata')
@@ -453,6 +455,7 @@ def parse_release_file(content):
 
 def add_apt_source(name, uri, suite, section, chroot):
     # NOTE(agordeev): The files have either no or "list" as filename extension
+    #向filename中写入一条源信息
     filename = 'fuel-image-{name}.list'.format(name=strip_filename(name))
     if section:
         entry = 'deb {uri} {suite} {section}\n'.format(uri=uri, suite=suite,
@@ -858,6 +861,7 @@ def rsync_inject(src, dst):
     """
     utils.makedirs_if_not_exists(os.path.dirname(dst))
     LOG.debug('Rsync files from %s to: %s', src, dst)
+    #文件同步
     utils.execute('rsync', '-rlptDKv', src + '/',
                   dst + '/', logged=True)
 

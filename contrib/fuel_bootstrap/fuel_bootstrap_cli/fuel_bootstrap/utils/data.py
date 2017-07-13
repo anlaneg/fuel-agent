@@ -32,12 +32,15 @@ class BootstrapDataBuilder(object):
     def __init__(self, data):
         self.uuid = six.text_type(uuid.uuid4())
 
+        #默认是tar.gz
         self.container_format = consts.COMPRESSED_CONTAINER_FORMAT
         if data.get('no_compress'):
+            #不压缩，则格式为目录
             self.container_format = consts.UNCOMPRESSED_CONTAINER_FORMAT
 
         self.ubuntu_release = data.get('ubuntu_release') or CONF.ubuntu_release
         if not self.ubuntu_release:
+            #没有配置ubuntu_release,扔异常
             raise errors.WrongUbuntuRelease(
                 "'ubuntu_release' value has not been passed!")
 
@@ -45,6 +48,7 @@ class BootstrapDataBuilder(object):
 
         self.http_proxy = data.get('http_proxy') or CONF.http_proxy
         self.https_proxy = data.get('https_proxy') or CONF.https_proxy
+        #仓库地址
         self.direct_repo_addr = data.get('direct_repo_addr') or []
         self.no_default_direct_repo_addr = data.get(
             'no_default_direct_repo_addr')
@@ -79,6 +83,7 @@ class BootstrapDataBuilder(object):
             self.hashed_root_password = CONF.hashed_root_password
 
     def build(self):
+        #配置配置dict
         repos = self._get_repos()
         return {
             'bootstrap': {
@@ -89,7 +94,7 @@ class BootstrapDataBuilder(object):
                 'extra_files': self._get_extra_dirs(),
                 'root_ssh_authorized_file': self.root_ssh_authorized_file,
                 'container': {
-                    'meta_file': consts.METADATA_FILE,
+                    'meta_file': consts.METADATA_FILE,#metadata文件名称
                     'format': self.container_format
                 },
                 'label': self.label,
@@ -100,7 +105,7 @@ class BootstrapDataBuilder(object):
             'codename': self.ubuntu_release,
             'output': self.output,
             'packages': self._get_packages(),
-            'image_data': self._prepare_image_data(),
+            'image_data': self._prepare_image_data(),#格式化consts.IMAGE_DATA
             'hashed_root_password': self.hashed_root_password,
             'root_password': self.root_password,
         }
@@ -114,6 +119,7 @@ class BootstrapDataBuilder(object):
         return list(dirs)
 
     def _prepare_modules(self):
+        #用self.uuid替换uri中的变量uuid
         modules = copy.deepcopy(consts.BOOTSTRAP_MODULES)
         for module in modules:
             module['uri'] = module['uri'].format(uuid=self.uuid)
@@ -126,6 +132,7 @@ class BootstrapDataBuilder(object):
 
     def _get_proxy_settings(self):
         if self.http_proxy or self.https_proxy:
+            #启用代理后，构造protocols格式
             return {'protocols': {'http': self.http_proxy,
                                   'https': self.https_proxy},
                     'direct_repo_addr_list': self._get_direct_repo_addr()}
@@ -143,6 +150,7 @@ class BootstrapDataBuilder(object):
     def _get_repos(self):
         repos = []
 
+        #解析仓库，并将其附加到repos中
         for idx, repo in enumerate(self.repos):
             repos.append(self._parse_repo(
                 repo,
@@ -162,6 +170,16 @@ class BootstrapDataBuilder(object):
 
     @classmethod
     def _parse_repo(cls, repo, name=None):
+        #ubuntu仓库有几种形式
+        # (?P<type>...) 分组，可以指定名称
+        #下为一个合适的repo
+        #deb http://mirrors.163.com/ubuntu/ xenial main restricted universe multiverse
+        #则 type = 'deb'
+        #   url = 'http://mirrors.163.com/ubuntu/'
+        #   suite = 'http://mirrors.163.com/ubuntu/'
+        #   section = 'main restricted universe multiverse'
+        #   priority = '' #上面的例子没有给出，在配置时，其用逗事情与repo分隔
+        
         regexp = (r"(?P<type>deb(-src)?) (?P<uri>[^\s]+) (?P<suite>[^\s]+)( "
                   r"(?P<section>[\w\s]*))?(,(?P<priority>[\d]+))?")
 
