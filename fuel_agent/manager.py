@@ -249,6 +249,7 @@ class Manager(object):
                         'Partition %s not found after creation' % prt.name)
 
     def do_partitioning(self):
+        #处理分区
         LOG.debug('--- Partitioning disks (do_partitioning) ---')
 
         if self.driver.partition_scheme.skip_partitioning:
@@ -260,7 +261,9 @@ class Manager(object):
         # If disks are not wiped out at all, it is likely they contain lvm
         # and md metadata which will prevent re-creating a partition table
         # with 'device is busy' error.
+        #移除raid
         mu.mdclean_all(skip_containers=CONF.skip_md_containers)
+        #移除lvm相关的配置
         lu.lvremove_all()
         lu.vgremove_all()
         lu.pvremove_all()
@@ -989,11 +992,13 @@ class Manager(object):
         self.umount_target(chroot)
 
     def do_reboot(self):
+        #完成重启
         LOG.debug('--- Rebooting node (do_reboot) ---')
         utils.execute('reboot')
 
     def do_provisioning(self):
         LOG.debug('--- Provisioning (do_provisioning) ---')
+        #分区
         self.do_partitioning()
         if CONF.use_configdrive:
             self.do_configdrive()

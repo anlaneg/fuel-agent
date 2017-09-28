@@ -21,6 +21,7 @@ class VolumeGroup(base.Serializable):
     def __init__(self, name, pvnames=None, keep_data=False):
         self.keep_data = keep_data
         self.name = name
+        #含哪些物理volume
         self.pvnames = pvnames or []
 
     def add_pv(self, pvname):

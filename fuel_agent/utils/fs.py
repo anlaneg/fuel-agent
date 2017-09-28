@@ -36,13 +36,15 @@ def format_fs_label(label):
     else:
         return ' -L {0} '.format(label[:12])
 
-
+#将dev格式化为fs_type文件系统
 def make_fs(fs_type, fs_options, fs_label, dev):
     # NOTE(agordeev): notice the different flag to force the fs creating
     #                ext* uses -F flag, xfs/mkswap uses -f flag.
     cmd_line = []
+    #通过mkswap创建swap分区
     cmd_name = 'mkswap'
     if fs_type != 'swap':
+        #通过mkfs.ext4创建ext4
         cmd_name = 'mkfs.%s' % fs_type
     if fs_type == 'xfs':
         # NOTE(agordeev): force xfs creation.
@@ -61,6 +63,7 @@ def make_fs(fs_type, fs_options, fs_label, dev):
     # minix filesystem magic (0x8f13)
     mkfs_ok = False
     for _ in six.moves.range(MAX_MKFS_TRIES):
+        #格式化文件系统
         utils.execute(*cmd_line)
         try:
             utils.execute('blkid', '-c', '/dev/null', '-o', 'value',

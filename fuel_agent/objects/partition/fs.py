@@ -21,9 +21,13 @@ class FileSystem(base.Serializable):
     def __init__(self, device, mount=None, fs_type=None,
                  fs_options=None, fs_label=None, keep_data=False):
         self.keep_data = keep_data
+        #磁盘设备
         self.device = device
+        #挂载点
         self.mount = mount
+        #文件系统类型
         self.type = fs_type or 'xfs'
+        #选项（挂载选项）
         self.options = fs_options or ''
         self.label = fs_label or ''
 

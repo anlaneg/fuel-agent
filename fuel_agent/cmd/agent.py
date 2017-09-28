@@ -119,6 +119,7 @@ def main(actions=None):
     # Process group is used to distribute signals to subprocesses.
     # The main application is already a process group leader,
     # then there's no need to call os.setpgrp
+    #当前进程id与当前进程组id不相等，设置当前进程为组长
     if os.getpid() != os.getpgrp():
         os.setpgrp()
     signal.signal(signal.SIGTERM, handle_sigterm)
@@ -138,6 +139,8 @@ def main(actions=None):
                 data = yaml.safe_load(f)
         LOG.debug('Input data: %s', data)
 
+        #调用nailgun = fuel_agent.drivers.nailgun:Nailgun
+        # 函数中的字符串，例如do_partitioning
         mgr = manager.Manager(data)
         if actions:
             for action in actions:

@@ -21,6 +21,7 @@ class PhysicalVolume(base.Serializable):
     def __init__(self, name, metadatasize=16,
                  metadatacopies=2, keep_data=False):
         self.keep_data = keep_data
+        #物理卷名称
         self.name = name
         self.metadatasize = metadatasize
         self.metadatacopies = metadatacopies

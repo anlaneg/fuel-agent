@@ -20,8 +20,11 @@ class LogicalVolume(base.Serializable):
 
     def __init__(self, name, vgname, size, keep_data=False):
         self.keep_data = keep_data
+        #逻辑卷名称
         self.name = name
+        #卷组名称
         self.vgname = vgname
+        #卷大小
         self.size = size
 
     @property

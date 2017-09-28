@@ -132,6 +132,7 @@ def execute(*cmd, **kwargs):
                                                        stderr=e, cmd=command)
                 if len(process) >= 2:
                     process[-2].stdout.close()
+            #执行命令行
             stdout, stderr = process[-1].communicate()
             if (not ignore_exit_code and
                process[-1].returncode not in check_exit_code):

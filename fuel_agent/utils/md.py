@@ -48,6 +48,7 @@ def mddetail_parse(output):
     return md
 
 
+#返回所有md的名称
 def get_mdnames(output=None):
     mdnames = []
     if not output:
@@ -58,7 +59,7 @@ def get_mdnames(output=None):
             mdnames.append('/dev/%s' % line.split()[0])
     return mdnames
 
-
+#显示radmd设备的详细情况
 def mddisplay(names=None):
     mdnames = names or get_mdnames()
     mds = []
@@ -77,7 +78,7 @@ def mddisplay(names=None):
     LOG.debug('Found md devices: {0}'.format(mds))
     return mds
 
-
+#md创建
 def mdcreate(mdname, level, devices, metadata='default'):
     mds = mddisplay()
 
@@ -157,7 +158,7 @@ def mdclean(device):
     utils.execute('mdadm', '--zero-superblock', '--force', device,
                   check_exit_code=[0])
 
-
+#删除所有md
 def mdclean_all(skip_containers=False):
     LOG.debug('Trying to wipe out all md devices')
     mds_to_skip = []

@@ -236,16 +236,17 @@ def lvremove(lvpath):
     utils.execute('lvremove', '-f', lvpath, check_exit_code=[0])
 
 
+#移除lv
 def lvremove_all():
     for lv in lvdisplay():
         lvremove(lv['path'])
 
-
+#移除vg
 def vgremove_all():
     for vg in vgdisplay():
         vgremove(vg['name'])
 
-
+#移除pv
 def pvremove_all():
     for pv in pvdisplay():
         pvremove(pv['name'])

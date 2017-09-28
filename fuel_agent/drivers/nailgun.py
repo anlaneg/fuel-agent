@@ -254,6 +254,7 @@ class Nailgun(base.BaseDataDriver):
     def _num_ceph_osds(self):
         return self._get_partition_count('ceph')
 
+    #构造os,一般返回Ubuntu或者Centos
     def get_os_by_image_meta(self, os_release):
         LOG.debug('--- Getting operating system data by image metadata ---')
         if os_release:
