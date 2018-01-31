@@ -122,6 +122,7 @@ def main(actions=None):
     #当前进程id与当前进程组id不相等，设置当前进程为组长
     if os.getpid() != os.getpgrp():
         os.setpgrp()
+    #收到sigterm信号，杀掉整个进程组
     signal.signal(signal.SIGTERM, handle_sigterm)
 
     # Setup logging and process configuration options

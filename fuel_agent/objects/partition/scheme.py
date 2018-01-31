@@ -43,21 +43,25 @@ class PartitionScheme(object):
         self.parteds.append(parted)
         return parted
 
+    #添加物理卷
     def add_pv(self, **kwargs):
         pv = f_pv.PhysicalVolume(**kwargs)
         self.pvs.append(pv)
         return pv
 
+    #添加卷组
     def add_vg(self, **kwargs):
         vg = f_vg.VolumeGroup(**kwargs)
         self.vgs.append(vg)
         return vg
 
+    #添加逻辑卷
     def add_lv(self, **kwargs):
         lv = f_lv.LogicalVolume(**kwargs)
         self.lvs.append(lv)
         return lv
 
+    #添加文件系统
     def add_fs(self, **kwargs):
         fs = f_fs.FileSystem(**kwargs)
         if fs.mount and not os.path.isabs(fs.mount) and fs.mount != 'swap':
